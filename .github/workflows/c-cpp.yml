@@ -21,3 +21,8 @@ jobs:
       run: make check
     - name: make distcheck
       run: make distcheck
+steps:
+- name: Install build dependencies
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y autoconf automake libtool
