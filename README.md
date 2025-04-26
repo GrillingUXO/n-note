@@ -15,4 +15,3 @@ g++ -std=c++17 -I. -Imidifile/include \
     midifile/lib/libmidifile.a \
     -framework Cocoa \
     -o n-note
-    ```
