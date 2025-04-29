@@ -11,7 +11,7 @@ g++ -std=c++17 -I. -Imidifile/include \
 ```powershell
 g++ -std=c++17 -I. -Imidifile/include \
     tinyfiledialogs.o \
-    dtw_aligner.cpp similarity_calculator.cpp midi_io.cpp main.cpp \
+    similarity_calculator.cpp midi_io.cpp main.cpp \
     midifile/lib/libmidifile.a \
     -framework Cocoa \
     -o n-note
