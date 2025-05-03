@@ -5,4 +5,5 @@ struct NoteEvent {
     int pitch;
     double note_value;
     double bpm;
+    int channel; 
 };

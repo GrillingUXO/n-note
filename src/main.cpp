@@ -121,14 +121,17 @@ void run_alignment_process() {
                   << perf_notes.size() << "\n"
                   << "===========================================\n";
 
-        std::cout << "\n=== Reference MIDI Notes (Pitch/NoteValue) ===" << std::endl;
+        std::cout << "\n=== Reference MIDI Notes (Channel/Pitch/NoteValue) ===" << std::endl;
         for (size_t i = 0; i < ref_notes.size(); ++i) {
-            std::cout << ref_notes[i].pitch << "/" << ref_notes[i].note_value << std::endl;
+            std::cout << "Channel " << ref_notes[i].channel << ": " 
+                      << ref_notes[i].pitch << "/" << ref_notes[i].note_value 
+                      << std::endl;
         }
-
-        std::cout << "\n=== Performance MIDI Notes (Pitch/NoteValue) ===" << std::endl;
+        std::cout << "\n=== Performance MIDI Notes (Channel/Pitch/NoteValue) ===" << std::endl;
         for (size_t i = 0; i < perf_notes.size(); ++i) {
-            std::cout << perf_notes[i].pitch << "/" << perf_notes[i].note_value << std::endl;
+            std::cout << "Channel " << perf_notes[i].channel << ": " 
+                      << perf_notes[i].pitch << "/" << perf_notes[i].note_value 
+                      << std::endl;
         }
 
         SimilarityCalculator calculator(ref_notes, perf_notes);
