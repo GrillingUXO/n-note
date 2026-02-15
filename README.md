@@ -39,4 +39,4 @@ g++ -std=c++17 \
     -static -static-libgcc -static-libstdc++ -pthread \
     -o nnote.exe
 ```
-
+cd /c/Users/Grud/Downloads/n-note-main/n-note-main
