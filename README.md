@@ -24,4 +24,17 @@ mv *.o obj/
 ar rcs libmidifile.a obj/*.o
 ```
 
+comiling nnote
+```powershell
+g++ -std=c++17 \
+    src/main.cpp \
+    src/similarity_calculator.cpp \
+    src/midi_io.cpp \
+    libs/tinyfiledialogs/tinyfiledialogs.c \
+    -Ilibs/midifile/include \
+    -Ilibs/tinyfiledialogs \
+    -Llibs/midifile -lmidifile \
+    -lole32 -lcomdlg32 -luuid -loleaut32 \
+    -o nnote.exe
+```
 
