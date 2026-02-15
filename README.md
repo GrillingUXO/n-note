@@ -10,3 +10,14 @@ g++ -std=c++17 -I. -Imidifile/include \
     midifile/lib/libmidifile.a \
     -framework Cocoa \
     -o n-note
+```
+
+```powershell
+cd /c/Users/Grud/Downloads/n-note-main/n-note-main/libs/midifile
+mkdir -p obj
+g++ -std=c++17 -c src/*.cpp -Iinclude
+mv *.o obj/
+ar rcs libmidifile.a obj/*.o
+```
+
+
