@@ -26,6 +26,7 @@ ar rcs libmidifile.a obj/*.o
 
 comiling nnote
 ```powershell
+cd ~/n-note-main
 g++ -std=c++17 \
     src/main.cpp \
     src/similarity_calculator.cpp \
