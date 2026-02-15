@@ -36,7 +36,7 @@ g++ -std=c++17 \
     -Ilibs/tinyfiledialogs \
     -Llibs/midifile -lmidifile \
     -lole32 -lcomdlg32 -luuid -loleaut32 \
-    -static-libstdc++ -static-libgcc \
+    -static -static-libgcc -static-libstdc++ -pthread \
     -o nnote.exe
 ```
 
