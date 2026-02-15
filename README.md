@@ -14,9 +14,10 @@ g++ -std=c++17 -I. -Imidifile/include \
 
 
 Windows Mingw
+
+compiling midifile
 ```powershell
-//compiling midifile
-cd /c/Users/Grud/Downloads/n-note-main/n-note-main/libs/midifile
+cd ~/n-note-main/libs/midifile
 mkdir -p obj
 g++ -std=c++17 -c src/*.cpp -Iinclude
 mv *.o obj/
