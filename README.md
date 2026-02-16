@@ -24,7 +24,7 @@ mv *.o obj/
 ar rcs libmidifile.a obj/*.o
 ```
 
-comiling nnote
+comiling n-note
 ```powershell
 cd ~/n-note-main
 g++ -std=c++17 \
