@@ -37,6 +37,6 @@ g++ -std=c++17 \
     -Llibs/midifile -lmidifile \
     -lole32 -lcomdlg32 -luuid -loleaut32 \
     -static -static-libgcc -static-libstdc++ -pthread \
-    -o nnote.exe
+    -o n-note.exe
 ```
 cd /c/Users/Grud/Downloads/n-note-main/n-note-main
