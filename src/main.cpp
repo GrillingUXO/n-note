@@ -18,6 +18,8 @@ void run_alignment_process();
 
 int main() {
     run_alignment_process();
+    std::cout << "\npress enter to exit...";
+    std::cin.get();  
     return 0;
 }
 
