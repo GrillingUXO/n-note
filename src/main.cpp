@@ -7,14 +7,16 @@
 #include <string>
 #include <algorithm> 
 #include <cmath>
+#include <filesystem> 
 #include "MidiFile.h" 
 
+namespace fs = std::filesystem;
 
 std::string select_midi_file(const std::string& dialog_title);
 std::vector<NoteEvent> parse_midi_with_retry(const std::string& path);
-void generate_similarity_report(const std::vector<MatchSegment>& segments);
+void generate_similarity_report(const std::vector<MatchSegment>& segments, bool fallback_triggered);
 void run_alignment_process();
-
+void save_segment_to_midi(const std::vector<NoteEvent>& notes, const std::string& filename);
 
 int main() {
     run_alignment_process();
@@ -22,7 +24,6 @@ int main() {
     std::cin.get();  
     return 0;
 }
-
 
 std::string select_midi_file(const std::string& dialog_title) {
     const char* filters[] = {"*.mid"};
@@ -49,11 +50,9 @@ std::vector<NoteEvent> parse_midi_with_retry(const std::string& path) {
     return {}; 
 }
 
-
 void generate_similarity_report(
     const std::vector<MatchSegment>& segments, 
     bool fallback_triggered 
-
 ) {
     constexpr int min_segment_length = 3;
     
@@ -74,6 +73,37 @@ void generate_similarity_report(
     std::cout << "===============================================\n";
 }
 
+
+void save_segment_to_midi(const std::vector<NoteEvent>& notes, const std::string& filename) {
+    if (notes.empty()) return;
+
+    smf::MidiFile midifile;
+    midifile.setTicksPerQuarterNote(480);
+    int track = 0;
+    midifile.addTrack(1);
+
+    midifile.addTempo(track, 0, notes[0].bpm);
+
+    double start_offset = notes[0].start;
+
+    for (const auto& note : notes) {
+        double relative_start_sec = note.start - start_offset;
+        
+        int start_tick = static_cast<int>(relative_start_sec * (note.bpm / 60.0) * 480.0);
+        int duration_tick = static_cast<int>(note.note_value * 480.0);
+
+        midifile.addNoteOn(track, start_tick, note.channel, note.pitch, 90);
+        midifile.addNoteOff(track, start_tick + duration_tick, note.channel, note.pitch);
+    }
+
+    midifile.sortTracks();
+    if (midifile.write(filename)) {
+        std::cout << "[Export] Saved: " << filename << std::endl;
+    } else {
+        std::cerr << "[Export Error] Failed to write: " << filename << std::endl;
+    }
+}
+
 std::vector<double> calculate_denominators(
     const std::string& path, 
     const std::vector<NoteEvent>& notes
@@ -92,14 +122,6 @@ std::vector<double> calculate_denominators(
         double duration_in_quarters = duration_in_seconds / quarter_seconds;
         double denominator = 4.0 / duration_in_quarters;
 
-        std::cout << "Note pitch " << note.pitch
-                  << " | Start time: " << note.start << "s"
-                  << " | Note Value: " << note.note_value
-                  << " | BPM: " << note.bpm
-                  << " | Duration in quarters: " << duration_in_quarters
-                  << " | Calculated denominator: " << denominator
-                  << std::endl;
-
         denominators.push_back(denominator);
     }
     return denominators;
@@ -113,8 +135,8 @@ void run_alignment_process() {
         auto ref_notes = parse_midi_with_retry(ref_path);
         auto perf_notes = parse_midi_with_retry(perf_path);
 
-        auto ref_denominators = calculate_denominators(ref_path, ref_notes);
-        auto perf_denominators = calculate_denominators(perf_path, perf_notes);
+        std::string ref_base = fs::path(ref_path).stem().string();
+        std::string perf_base = fs::path(perf_path).stem().string();
 
         std::cout << "\n=== File Info =============================="
                   << "\nReference:  " << ref_path
@@ -123,23 +145,37 @@ void run_alignment_process() {
                   << perf_notes.size() << "\n"
                   << "===========================================\n";
 
-        std::cout << "\n=== Reference MIDI Notes (Channel/Pitch/NoteValue) ===" << std::endl;
-        for (size_t i = 0; i < ref_notes.size(); ++i) {
-            std::cout << "Channel " << ref_notes[i].channel << ": " 
-                      << ref_notes[i].pitch << "/" << ref_notes[i].note_value 
-                      << std::endl;
-        }
-        std::cout << "\n=== Performance MIDI Notes (Channel/Pitch/NoteValue) ===" << std::endl;
-        for (size_t i = 0; i < perf_notes.size(); ++i) {
-            std::cout << "Channel " << perf_notes[i].channel << ": " 
-                      << perf_notes[i].pitch << "/" << perf_notes[i].note_value 
-                      << std::endl;
-        }
-
         SimilarityCalculator calculator(ref_notes, perf_notes);
         std::vector<MatchSegment> segments = calculator.find_similar_segments(70.0);
         bool fallback_triggered = calculator.was_fallback_used();
+        
         generate_similarity_report(segments, fallback_triggered);
+
+        std::cout << "\n=== Exporting Matches ======================\n";
+        int seg_index = 1;
+        for (const auto& seg : segments) {
+            if (seg.length >= 3) {
+                // 提取参考片段子集
+                std::vector<NoteEvent> ref_sub(
+                    ref_notes.begin() + seg.ref_start,
+                    ref_notes.begin() + seg.ref_start + seg.length
+                );
+                // 提取演奏片段子集
+                std::vector<NoteEvent> perf_sub(
+                    perf_notes.begin() + seg.perf_start,
+                    perf_notes.begin() + seg.perf_start + seg.length
+                );
+
+                std::string ref_out_name = ref_base + "_seg" + std::to_string(seg_index) + "_ref.mid";
+                std::string perf_out_name = perf_base + "_seg" + std::to_string(seg_index) + "_perf.mid";
+
+                save_segment_to_midi(ref_sub, ref_out_name);
+                save_segment_to_midi(perf_sub, perf_out_name);
+                
+                seg_index++;
+            }
+        }
+        std::cout << "===========================================\n";
 
     } catch (const std::exception& e) {
         std::cerr << "\n[Fatal Error] " << e.what() << "\n";
