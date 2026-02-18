@@ -99,9 +99,9 @@ void SimilarityCalculator::perform_fallback_check(
             }
         }
 
-        if (matched_pairs >= 2) {
+        if (matched_pairs >= 3) {
             int matched_length = static_cast<int>(perf_idx - perf_start + 1);
-            double similarity = std::min(matched_pairs * 50.0, 100.0);
+            double similarity = std::min(matched_pairs * 33.3, 100.0);
             candidates.push_back({
                 0,
                 static_cast<int>(perf_start),
@@ -162,7 +162,7 @@ std::vector<MatchSegment> SimilarityCalculator::find_similar_segments(double sim
 
     bool has_high_similarity = false;
     for (const auto& seg : candidates) {
-        if (seg.similarity >= 50.0) { 
+        if (seg.similarity >= 90.0) { 
             has_high_similarity = true;
             break;
         }
