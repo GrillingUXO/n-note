@@ -127,7 +127,7 @@ std::vector<MatchSegment> SimilarityCalculator::find_similar_segments(double sim
             for (int j = 0; j < m; ++j) {
                 if (ref_intervals[i] == perf_intervals[j]) {
                     dp[i][j] = (i > 0 && j > 0) ? dp[i-1][j-1] + 1 : 1;
-                    if (dp[i][j] >= 2) {
+                    if (dp[i][j] >= 4) {
                         int length = dp[i][j] + 1;
                         int ref_start = i - dp[i][j] + 1;
                         int perf_start = j - dp[i][j] + 1;
